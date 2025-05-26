@@ -153,6 +153,7 @@
                 'id' => 1,
                 'category_id' => 1,
                 'name' => 'ข้าวผัดกะเพรา',
+                'detail' => 'detail detail detail detail detail detail detail detail detail',
                 'base_price' => 45,
                 'files' => null,
                 'option' => [
@@ -178,6 +179,7 @@
                 'id' => 2,
                 'category_id' => 1,
                 'name' => 'ข้าวมันไก่',
+                'detail' => 'detail detail detail detail detail detail detail detail detail',
                 'base_price' => 35,
                 'files' => null,
                 'option' => [],
@@ -241,16 +243,21 @@
                         </div>
 
                         <div class="offcanvas-body small px-3">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h5 class="offcanvas-title fw-bold mb-0 fs-5  product-name">{{ $rs['name'] }}</h5>
-                                <span class="text-end fs-5 fw-bold" style="line-height: 1.0;">
+                            <div class="row justify-content-between align-items-start mb-2">
+                                <div class="col-9 text-start ">
+                                    <h5 class="offcanvas-title fw-bold mb-0 fs-5  product-name">{{ $rs['name'] }}</h5>
+                                    <div class="text-muted ps-1" style="line-height: 1.0;">{{ $rs['detail']}}</div>
+                                </div>
+                                
+                                <div class="col-3 text-start text-end fs-5 fw-bold" style="line-height: 1.0;">
                                     {{ $rs['base_price'] }} <br>
                                     <span class="text-muted"
                                         style="font-size: 14px; font-weight: normal;">ราคาเริ่มต้น</span>
-                                </span>
+                                </div>
                             </div>
-                            <hr>
+                            <hr class="my-1">
                             <input type="hidden" id="uuid" value="">
+                            <input type="hidden" id="base_pricex" class="base_pricex" value="{{ $rs['base_price'] }}">
                             @foreach ($rs['option'] as $type => $optionGroup)
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <h6 class="fs-6 fw-bold mb-0">{{ $type }}</h6>
@@ -321,7 +328,7 @@
                                     <button id="add-to-cart-btn" class=" add-to-cart-btn btn btn-primary w-100 "
                                         style="font-size: 16px; border-radius: 25px;" data-rs-id="{{ $rs['id'] }}"
                                         data-category-id="{{ $rs['category_id'] }}" disabled>
-                                        เพิ่มไปยังตะกร้า - <span id="total-price">{{ $rs['base_price'] }}</span> ฿
+                                        เพิ่มไปยังตะกร้า - <span id="total-price" class="total-pricex" data-id="{{ $rs['id'] }}">{{ $rs['base_price'] }}</span> ฿
                                     </button>
                                     <button id="back-menu" class=" back-menu btn btn-primary w-100 "
                                         style="font-size: 16px; border-radius: 25px;" data-rs-id="{{ $rs['id'] }}"
@@ -350,7 +357,7 @@
                             style="background-color: white; z-index: 999; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); border: none;">
                             <div class="container text-center">
                                 <button id="addList" class=" btn btn-primary w-100 add-button"
-                                    style="font-size: 16px; border-radius: 25px;" data-rs-id="{{ $rs['id'] }}">
+                                    style="font-size: 16px; border-radius: 25px;" data-rs-id="{{ $rs['id'] }}" data-rs-price="{{$rs['base_price']}}">
                                     สั่งรายการนี้เพิ่ม
                                 </button>
                             </div>
@@ -381,10 +388,10 @@
             addButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = this.dataset.rsId;
+                    const basePrice = this.dataset.rsPrice;
                     const targetId = `#offcanvasAdd-${productId}`;
                     const offcanvasEl = document.querySelector(targetId);
                     if (!offcanvasEl) return;
-
                     const uniqId = document.getElementById('uuid');
                     if (uniqId && uniqId.value) {
                         uniqId.value = '';
@@ -417,15 +424,25 @@
                     const addToCartBtn = document.querySelector(
                         `.add-to-cart-btn[data-rs-id="${productId}"]`);
                     const backMenuBtn = document.querySelector(
-                        `.back-menu[data-rs-id="${productId}"]`);
-
-                    if (currentCount === 0) {
-                        addToCartBtn?.setAttribute('hidden', true);
-                        backMenuBtn?.removeAttribute('hidden');
-                    } else {
-                        addToCartBtn?.removeAttribute('hidden');
-                        backMenuBtn?.setAttribute('hidden', true);
-                    }
+                        `.back-menu[data-rs-id="${productId}"]`);   
+                    const base_price = offcanvasEl.querySelector('.base_pricex');
+                    // console.log(base_price)
+                    const price = offcanvasEl.querySelector('.total-pricex');
+                    // console.log(price.textContent)
+                        if (currentCount === 0) {
+                            addToCartBtn?.setAttribute('hidden', true);
+                            backMenuBtn?.removeAttribute('hidden');
+                        } else {
+                            addToCartBtn?.removeAttribute('hidden');
+                            // ✅ ตรวจสอบว่ามี checkbox หรือไม่
+                            if (checkboxes.length > 0) {
+                                addToCartBtn?.setAttribute('disabled', ''); // ถ้ามี checkbox → ปิดปุ่มไว้ก่อน
+                            } else {
+                                addToCartBtn?.removeAttribute('disabled'); // ถ้าไม่มี checkbox → เปิดปุ่มเลย
+                            }
+                            price.textContent = base_price.value;
+                            backMenuBtn?.setAttribute('hidden', true);
+                        }
 
                     // ปิด offcanvas ที่เปิดอยู่
                     closeAllOffcanvas();
@@ -444,6 +461,7 @@
             productCards.forEach(card => {
                 card.addEventListener('click', function() {
                     const productId = this.dataset.id;
+                    
                     const cart = JSON.parse(localStorage.getItem('cart')) || [];
                     const matchingItems = cart.filter(item => item.id === productId);
 
@@ -541,21 +559,19 @@
                                         .querySelector(
                                             `.back-menu[data-rs-id="${productId}"]`
                                         );
-
                                     if (currentCount === 0) {
-                                        addToCartBtn?.setAttribute('hidden',
-                                            true);
-                                        backMenuBtn?.removeAttribute(
-                                            'hidden');
+                                        addToCartBtn?.setAttribute('hidden', true);
+                                        backMenuBtn?.removeAttribute('hidden');
                                     } else {
-                                        addToCartBtn?.removeAttribute(
-                                            'hidden');
-                                        addToCartBtn?.removeAttribute(
-                                            'disabled');
-                                        backMenuBtn?.setAttribute('hidden',
-                                            true);
+                                        addToCartBtn?.removeAttribute('hidden');
+                                        // ✅ ตรวจสอบว่ามี checkbox หรือไม่
+                                        if (checkboxes.length > 0) {
+                                            addToCartBtn?.removeAttribute('disabled', ''); // ถ้ามี checkbox → ปิดปุ่มไว้ก่อน
+                                        } else {
+                                            addToCartBtn?.removeAttribute('disabled'); // ถ้าไม่มี checkbox → เปิดปุ่มเลย
+                                        }
+                                        backMenuBtn?.setAttribute('hidden', true);
                                     }
-
                                     // ปิด offcanvas ตัวอื่น ๆ ก่อน
                                     closeAllOffcanvas();
 
@@ -571,6 +587,9 @@
                         }, 100);
 
                     } else {
+                        const offcanvasEl = document.querySelector(targetId);
+                        if (!offcanvasEl) return;
+
                         // เคลียร์ UUID
                         const uniqId = document.getElementById('uuid');
                         if (uniqId) uniqId.value = '';
@@ -603,12 +622,22 @@
 
                         if (currentCount < 0) currentCount = 0; // ให้ลดเหลือ 0 ได้
                         noteCountDiv.textContent = currentCount;
-
+                         const base_price = offcanvasEl.querySelector('.base_pricex');
+                        // console.log(base_price)
+                        const price = offcanvasEl.querySelector('.total-pricex');
+                    // console.log(price)
                         if (currentCount === 0) {
                             addToCartBtn?.setAttribute('hidden', true);
                             backMenuBtn?.removeAttribute('hidden');
                         } else {
                             addToCartBtn?.removeAttribute('hidden');
+                            // ✅ ตรวจสอบว่ามี checkbox หรือไม่
+                            if (checkboxes.length > 0) {
+                                addToCartBtn?.setAttribute('disabled', ''); // ถ้ามี checkbox → ปิดปุ่มไว้ก่อน
+                            } else {
+                                addToCartBtn?.removeAttribute('disabled'); // ถ้าไม่มี checkbox → เปิดปุ่มเลย
+                            }
+                            price.textContent = base_price.value;
                             backMenuBtn?.setAttribute('hidden', true);
                         }
                     }
@@ -699,6 +728,7 @@
                 rsCheckboxes.forEach(cb => {
                     if (cb.checked) {
                         totalPrice += parseFloat(cb.dataset.price) || 0;
+                        
                     }
                 });
 
@@ -720,6 +750,10 @@
                     if (groupRequired === 1 && checkedCount !== groupLimit) {
                         allRequiredGroupsValid = false;
                     }
+
+                    // ✅ อัปเดตราคารวมตามจำนวนสินค้า
+updateTotalPrice(rsId);
+
                 });
 
                 // ✅ ปิด/เปิดปุ่ม Add to Cart ตามเงื่อนไข
@@ -732,14 +766,19 @@
             // ✅ ผูก event เปลี่ยนค่ากับ checkbox
             checkboxes.forEach(cb => cb.addEventListener('change', handleCheckboxChange));
 
-            //✅ 4. เพิ่ม/ลด จำนวนสินค้าที่ต้องการสั่ง
+            //✅ 4. เพิ่ม/ลด จำนวนสินค้าที่ต้องการสั่ง //////////////////////////////////////////////////////////////////////////
             function changeNoteQty(rsId, delta) {
                 const noteCountDiv = document.querySelector(`.note-count[data-id="${rsId}"]`);
                 const addToCartBtn = document.querySelector(`.add-to-cart-btn[data-rs-id="${rsId}"]`);
                 const backMenuBtn = document.querySelector(`.back-menu[data-rs-id="${rsId}"]`);
+                const totalPriceEl = document.querySelector(`.total-pricex[data-id="${rsId}"]`);
+                
                 let currentCount = parseInt(noteCountDiv.textContent) || 0;
-                currentCount += delta;
-                if (currentCount < 0) currentCount = 0; // ให้ลดเหลือ 0 ได้
+                if(delta){
+                    currentCount += delta;
+                }
+                
+                if (currentCount < 0) currentCount = 0;
                 noteCountDiv.textContent = currentCount;
 
                 if (currentCount === 0) {
@@ -749,7 +788,45 @@
                     addToCartBtn?.removeAttribute('hidden');
                     backMenuBtn?.setAttribute('hidden', true);
                 }
+
+                // ✅ อัปเดตราคารวมตามจำนวนสินค้า
+updateTotalPrice(rsId);
+
             }
+
+            function updateTotalPrice(rsId) {
+    const rsCheckboxes = Array.from(document.querySelectorAll(
+        `.option-checkbox[data-rs-id="${rsId}"]`
+    ));
+
+    // ราคารวมเริ่มต้นคือ base price
+    const basePriceElement = rsCheckboxes[0];
+    let totalPerItem = parseFloat(basePriceElement?.dataset.basePrice || 0);
+
+    rsCheckboxes.forEach(cb => {
+        if (cb.checked) {
+            totalPerItem += parseFloat(cb.dataset.price) || 0;
+        }
+    });
+
+    // ดึงจำนวนที่ต้องการสั่ง
+    const noteCountDiv = document.querySelector(`.note-count[data-id="${rsId}"]`);
+    const qty = parseInt(noteCountDiv?.textContent) || 0;
+
+    const finalTotal = totalPerItem * qty;
+
+    // แสดงผลในทั้ง 2 จุด (ราคาในแผง และรวมด้านล่าง)
+    const priceLabel = document.querySelector(`#offcanvasAdd-${rsId} #total-price`);
+    if (priceLabel) {
+        priceLabel.textContent = finalTotal.toFixed(2);
+    }
+
+    const totalPriceEl = document.querySelector(`.total-pricex[data-id="${rsId}"]`);
+    if (totalPriceEl) {
+        totalPriceEl.textContent = finalTotal.toFixed(2);
+    }
+}
+
 
             document.querySelectorAll('.btn-minus').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -791,13 +868,14 @@
                 btn.addEventListener('click', function() {
                     const rsId = this.dataset.rsId;
                     const crId = this.dataset.categoryId;
-                    console.log(crId)
+                    
                     const offcanvasEl = this.closest('.offcanvas');
 
                     const basePriceEl = offcanvasEl.querySelector(
-                        '.option-checkbox[data-base-price]');
-                    const basePrice = parseFloat(basePriceEl?.dataset.basePrice || 0);
-
+                        '.base_pricex');
+                        // console.log(basePriceEl)
+                    const basePrice = parseFloat(basePriceEl.value);
+                    // console.log(basePrice)
                     const noteTextarea = document.getElementById(`note_${rsId}`);
                     const noteText = noteTextarea ? noteTextarea.value : '';
 
