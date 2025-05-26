@@ -966,12 +966,12 @@ updateTotalPrice(rsId);
                             const inner = listItem.querySelector('.cursor-pointer');
                             if (inner) {
                                 inner.click();
-                                console.log("✅ คลิก cursor-pointer สำเร็จ");
+                                console.log("✅ success");
                             } else {
-                                console.warn("⚠️ ไม่พบ .cursor-pointer ภายใน listItem");
+                                console.warn("⚠️ Not,see list in listItem");
                             }
                         } else {
-                            console.warn("❌ ไม่พบ listItem ด้วย data-uuid:", itemUuid);
+                            console.warn("❌ Not,see listItem at data-uuid:", itemUuid);
                         }
                     }, 500); // คุณอาจต้องลองปรับให้เหมาะกับการโหลดจริง
                 }
