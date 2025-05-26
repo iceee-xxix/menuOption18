@@ -41,7 +41,7 @@ class Main extends Controller
                 'category_id' => $rs->categories_id,
                 'name' => $rs->name,
                 'detail' => $rs->detail,
-                'base_price' => 35,
+                'base_price' => $rs->base_price,
                 'files' => $rs['files']
             ];
             $typeOption = MenuTypeOption::where('menu_id', $rs->id)->get();

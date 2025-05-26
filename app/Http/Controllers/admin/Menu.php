@@ -7,6 +7,7 @@ use App\Models\Categories;
 use App\Models\Menu as ModelsMenu;
 use App\Models\MenuFiles;
 use App\Models\MenuOption;
+use App\Models\MenuTypeOption;
 use Illuminate\Http\Request;
 
 class Menu extends Controller
@@ -63,6 +64,7 @@ class Menu extends Controller
             $menu = new ModelsMenu();
             $menu->name = $input['name'];
             $menu->categories_id = $input['categories_id'];
+            $menu->base_price = $input['base_price'];
             $menu->detail = $input['detail'];
             if ($menu->save()) {
                 if ($request->hasFile('file')) {
@@ -81,6 +83,7 @@ class Menu extends Controller
             $menu = ModelsMenu::find($input['id']);
             $menu->name = $input['name'];
             $menu->categories_id = $input['categories_id'];
+            $menu->base_price = $input['base_price'];
             $menu->detail = $input['detail'];
             if ($menu->save()) {
                 if ($request->hasFile('file')) {
@@ -134,6 +137,7 @@ class Menu extends Controller
     {
         $data['function_key'] = 'menu';
         $data['id'] = $id;
+        $data['info'] = MenuTypeOption::find($id);
         return view('menu.option.index', $data);
     }
 

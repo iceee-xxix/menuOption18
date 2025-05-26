@@ -24,6 +24,12 @@
                                     </div>
                                     <div class="row g-3 mb-3">
                                         <div class="col-md-12">
+                                            <label for="base_price" class="form-label">ราคา : </label>
+                                            <input type="text" class="form-control" id="base_price" name="base_price" onkeypress="return event.charCode >= 48 && event.charCode <= 57" required>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-12">
                                             <label for="name" class="form-label">หมวดหมู่อาหาร : </label>
                                             <select class="form-control" name="categories_id" id="categories_id" required>
                                                 <option value="" disabled selected>เลือกหมวดหมู่</option>

@@ -17,7 +17,6 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3 mb-2">
-
                                         <div class="col-md-12">
                                             <label for="name" class="form-label">ชื่อตัวเลือก : </label>
                                             <input type="text" class="form-control" id="name" name="name" required autocomplete="off">
@@ -43,7 +42,8 @@
                                 </div>
                                 <input type="hidden" name="id" id="id" value="{{$id}}">
                                 <div class="card-footer d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-outline-primary">บันทึก</button>
+                                    <a href="{{route('menuTypeOption',$id)}}" class="btn btn-sm btn-outline-primary mx-1">ย้อนกลับ</a>
+                                    <button type="submit" class="btn btn-sm btn-outline-success">บันทึก</button>
                                 </div>
                             </div>
                         </form>

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('categories_id');
             $table->text('name')->nullable();
             $table->text('detail')->nullable();
+            $table->text('base_price')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
