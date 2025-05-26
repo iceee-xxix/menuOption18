@@ -9,6 +9,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-end">
+                        <a href="{{route('menu')}}" class="btn btn-sm btn-outline-primary mx-1" style="font-size:14px">ย้อนกลับ</a>
                         <a href="{{route('MenuTypeOptionCreate',$id)}}" class="btn btn-sm btn-outline-success" style="font-size:14px">เพิ่มตัวเลือก&nbsp;<i class="bx bxs-plus-circle"></i></a>
                     </div>
                     <div class="card-body">

@@ -7,6 +7,7 @@ use App\Models\Categories;
 use App\Models\Menu as ModelsMenu;
 use App\Models\MenuFiles;
 use App\Models\MenuOption;
+use App\Models\MenuTypeOption;
 use Illuminate\Http\Request;
 
 class Menu extends Controller
@@ -136,6 +137,7 @@ class Menu extends Controller
     {
         $data['function_key'] = 'menu';
         $data['id'] = $id;
+        $data['info'] = MenuTypeOption::find($id);
         return view('menu.option.index', $data);
     }
 
