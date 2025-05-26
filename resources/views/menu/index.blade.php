@@ -17,7 +17,7 @@
                                 <tr>
                                     <th>เมนู</th>
                                     <th class="text-center">หมวดหมู่</th>
-                                    <th class="text-center">กำหนดราคา</th>
+                                    <th class="text-center">ตัวเลือก</th>
                                     <th class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
@@ -60,7 +60,7 @@
                     width: '20%',
                 },
                 {
-                    data: 'price',
+                    data: 'option',
                     class: 'text-center',
                     width: '20%',
                     orderable: false

@@ -180,24 +180,7 @@
                 'name' => 'ข้าวมันไก่',
                 'base_price' => 35,
                 'files' => null,
-                'option' => [
-                    'พิเศษ' => [
-                        'is_selected' => 1,
-                        'amout' => 1,
-                        'items' => [
-                            (object) ['id' => 5, 'name' => 'เพิ่มกุนเชียง', 'price' => 10],
-                            (object) ['id' => 6, 'name' => 'เพิ่มไข่ดาว', 'price' => 5],
-                        ],
-                    ],
-                    'เพิ่มเติม' => [
-                        'is_selected' => 0,
-                        'amout' => 0,
-                        'items' => [
-                            (object) ['id' => 7, 'name' => 'แจ๋ว', 'price' => 0],
-                            (object) ['id' => 8, 'name' => 'ซอสมะเขือ', 'price' => 0],
-                        ],
-                    ],
-                ],
+                'option' => [],
             ],
         ];
     @endphp
@@ -289,7 +272,7 @@
                                                 <input class="form-check-input me-2 option-checkbox" type="checkbox"
                                                     data-limit="{{ $optionGroup['amout'] }}"
                                                     data-required="{{ $optionGroup['is_selected'] }}"
-                                                    data-group="group_{{ $rs['id'] }}_{{ $type }}""
+                                                    data-group="group_{{ $rs['id'] }}_{{ $type }}"
                                                     data-rs-id="{{ $rs['id'] }}"
                                                     data-categoryId="{{ $rs['category_id'] }}"
                                                     data-type="{{ $type }}" data-price="{{ $option->price }}"

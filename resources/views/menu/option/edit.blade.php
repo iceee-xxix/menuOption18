@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-lg-12 col-md-12 order-1">
                 <div class="row d-flex justify-content-center">
-                    <div class="col-8">
+                    <div class="col-12">
                         <form action="{{route('menuOptionUpdate')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="card">
@@ -25,7 +25,7 @@
                                     <div class="row g-3 mb-3">
                                         <div class="col-md-12">
                                             <label for="price" class="form-label">ราคา(บาท) : </label>
-                                            <input type="text" class="form-control" id="price" name="price" value="{{ old('price', $info->price) }}" required onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                                            <input type="text" class="form-control" id="price" name="price" value="{{ old('price', $info->price) }}" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
                                         </div>
                                     </div>
                                 </div>

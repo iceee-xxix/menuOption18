@@ -8,21 +8,15 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="row d-flex justify-content-between">
-                            <div class="col-6"></div>
-                            <div class="col-auto">
-                                <a href="{{route('menulistOptionCreate',$id)}}" class="btn btn-sm btn-outline-success d-flex align-items-center" style="font-size:14px">เพิ่มราคาอาหาร&nbsp;<i class="bx bxs-plus-circle"></i></a>
-                            </div>
-                        </div>
+                    <div class="card-header d-flex justify-content-end">
+                        <a href="{{route('MenuTypeOptionCreate',$id)}}" class="btn btn-sm btn-outline-success" style="font-size:14px">เพิ่มตัวเลือก&nbsp;<i class="bx bxs-plus-circle"></i></a>
                     </div>
                     <div class="card-body">
                         <table id="myTable" class="display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>ประเภทราคา</th>
-                                    <th class="text-center">ราคา</th>
-                                    <th class="text-center">กำหนดสต็อก</th>
+                                    <th>ชื่อตัวเลือก</th>
+                                    <th class="text-center">กำหนดราคา</th>
                                     <th class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
@@ -48,29 +42,25 @@
             },
             processing: true,
             ajax: {
-                url: "{{route('menulistOption')}}",
-                data: {
-                    id: '{{$id}}'
-                },
+                url: "{{route('menuTypeOptionlistData')}}",
                 type: "post",
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                data: {
+                    id: '{{$id}}'
                 },
             },
             columns: [{
                     data: 'name',
                     class: 'text-left',
-                    width: '40%'
+                    width: '60%'
                 },
                 {
-                    data: 'price',
+                    data: 'option',
                     class: 'text-center',
                     width: '20%',
-                },
-                {
-                    data: 'stock',
-                    class: 'text-center',
-                    width: '20%',
+                    orderable: false
                 },
                 {
                     data: 'action',
@@ -85,7 +75,7 @@
         e.preventDefault();
         var id = $(this).data('id');
         Swal.fire({
-            title: "ท่านต้องการลบราคานี้ใช่หรือไม่?",
+            title: "ท่านต้องการลบตัวเลือกใช่หรือไม่?",
             icon: "question",
             showDenyButton: true,
             confirmButtonText: "ตกลง",
@@ -93,7 +83,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{route('menuOptionDelete')}}",
+                    url: "{{route('menuTypeOptionDelete')}}",
                     type: "post",
                     data: {
                         id: id

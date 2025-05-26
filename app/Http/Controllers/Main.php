@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Categories;
 use App\Models\LogStock;
 use App\Models\Menu;
+use App\Models\MenuOption;
 use App\Models\MenuStock;
+use App\Models\MenuTypeOption;
 use App\Models\Orders;
 use App\Models\OrdersDetails;
 use App\Models\Promotion;
@@ -31,7 +33,40 @@ class Main extends Controller
 
     public function detail($id)
     {
-        $menu = Menu::where('categories_id', $id)->with('files', 'option')->orderBy('created_at', 'asc')->get();
+        $item = [];
+        $menu = Menu::where('categories_id', $id)->with('files')->orderBy('created_at', 'asc')->get();
+        foreach ($menu as $key => $rs) {
+            $item[$key] = [
+                'id' => $rs->id,
+                'category_id' => $rs->categories_id,
+                'name' => $rs->name,
+                'detail' => $rs->detail,
+                'base_price' => 35,
+                'files' => $rs['files']
+            ];
+            $typeOption = MenuTypeOption::where('menu_id', $rs->id)->get();
+            if (count($typeOption) > 0) {
+                foreach ($typeOption as $typeOptions) {
+                    $optionItem = [];
+                    $option = MenuOption::where('menu_type_option_id', $typeOptions->id)->get();
+                    foreach ($option as $options) {
+                        $optionItem[] = (object)[
+                            'id' => $options->id,
+                            'name' => $options->type,
+                            'price' => $options->price
+                        ];
+                    }
+                    $item[$key]['option'][$typeOptions->name] = [
+                        'is_selected' => $typeOptions->is_selected,
+                        'amout' => $typeOptions->amout,
+                        'items' =>  $optionItem
+                    ];
+                }
+            } else {
+                $item[$key]['option'] = [];
+            }
+        }
+        $menu = $item;
         return view('users.detail_page', compact('menu'));
     }
 
