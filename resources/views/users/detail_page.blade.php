@@ -147,45 +147,6 @@
             color: #30acff;
         }
     </style>
-    @php
-        $menu = [
-            [
-                'id' => 1,
-                'category_id' => 1,
-                'name' => 'ข้าวผัดกะเพรา',
-                'detail' => 'detail detail detail detail detail detail detail detail detail',
-                'base_price' => 45,
-                'files' => null,
-                'option' => [
-                    'พิเศษ' => [
-                        'is_selected' => 1,
-                        'amout' => 2,
-                        'items' => [
-                            (object) ['id' => 1, 'name' => 'เพิ่มชีส', 'price' => 10],
-                            (object) ['id' => 2, 'name' => 'เพิ่มไข่', 'price' => 5],
-                        ],
-                    ],
-                    'เพิ่มเติม' => [
-                        'is_selected' => 0,
-                        'amout' => 0,
-                        'items' => [
-                            (object) ['id' => 3, 'name' => 'ซอสพริก', 'price' => 2],
-                            (object) ['id' => 4, 'name' => 'ซอสมะเขือเทศ', 'price' => 4],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                'id' => 2,
-                'category_id' => 1,
-                'name' => 'ข้าวมันไก่',
-                'detail' => 'detail detail detail detail detail detail detail detail detail',
-                'base_price' => 35,
-                'files' => null,
-                'option' => [],
-            ],
-        ];
-    @endphp
     <div class="container">
         <div class="d-flex flex-column justify-content-center gap-2">
             <div class="title-food">
