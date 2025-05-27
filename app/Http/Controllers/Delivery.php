@@ -12,6 +12,7 @@ use App\Models\MenuStock;
 use App\Models\MenuTypeOption;
 use App\Models\Orders;
 use App\Models\OrdersDetails;
+use App\Models\OrdersOption;
 use App\Models\Promotion;
 use App\Models\Stock;
 use App\Models\User;
@@ -93,22 +94,25 @@ class Delivery extends Controller
             'message' => 'สั่งออเดอร์ไม่สำเร็จ',
         ];
         if (Session::get('user')) {
-            $orderData = $request->input('orderData');
+            $orderData = $request->input('cart');
             $remark = $request->input('remark');
             $item = array();
             $total = 0;
-            foreach ($orderData as $order) {
-                foreach ($order as $rs) {
-                    $item[] = [
-                        'id' => $rs['id'],
-                        'price' => $rs['price'],
-                        'option' => $rs['option'],
-                        'qty' => $rs['qty'],
-                    ];
-                    $total = $total + ($rs['price'] * $rs['qty']);
+            foreach ($orderData as $key => $order) {
+                $item[$key] = [
+                    'menu_id' => $order['id'],
+                    'quantity' => $order['amount'],
+                    'price' => $order['total_price']
+                ];
+                if (!empty($order['options'])) {
+                    foreach ($order['options'] as $rs) {
+                        $item[$key]['option'][] = $rs['id'];
+                    }
+                } else {
+                    $item[$key]['option'] = [];
                 }
+                $total = $total + $order['total_price'];
             }
-
             if (!empty($item)) {
                 $info = UsersAddress::where('is_use', 1)->where('users_id', Session::get('user')->id)->first();
                 if ($info != null) {
@@ -122,24 +126,31 @@ class Delivery extends Controller
                         foreach ($item as $rs) {
                             $orderdetail = new OrdersDetails();
                             $orderdetail->order_id = $order->id;
-                            $orderdetail->menu_id = $rs['id'];
-                            $orderdetail->option_id = $rs['option'];
-                            $orderdetail->quantity = $rs['qty'];
+                            $orderdetail->menu_id = $rs['menu_id'];
+                            $orderdetail->quantity = $rs['quantity'];
                             $orderdetail->price = $rs['price'];
                             if ($orderdetail->save()) {
-                                $menuStock = MenuStock::where('menu_option_id', $rs['option'])->get();
-                                foreach ($menuStock as $stock_rs) {
-                                    $stock = Stock::find($stock_rs->stock_id);
-                                    $stock->amount = $stock->amount - ($stock_rs->amount * $rs['qty']);
-                                    if ($stock->save()) {
-                                        $log_stock = new LogStock();
-                                        $log_stock->stock_id = $stock_rs->stock_id;
-                                        $log_stock->order_id = $order->id;
-                                        $log_stock->menu_option_id = $rs['option'];
-                                        $log_stock->old_amount = $stock->amount;
-                                        $log_stock->amount = ($stock_rs->amount * $rs['qty']);
-                                        $log_stock->status = 2;
-                                        $log_stock->save();
+                                foreach ($rs['option'] as $key => $option) {
+                                    $orderOption = new OrdersOption();
+                                    $orderOption->order_detail_id = $orderdetail->id;
+                                    $orderOption->option_id = $option;
+                                    $orderOption->save();
+                                    $menuStock = MenuStock::where('menu_option_id', $option)->get();
+                                    if ($menuStock->isNotEmpty()) {
+                                        foreach ($menuStock as $stock_rs) {
+                                            $stock = Stock::find($stock_rs->stock_id);
+                                            $stock->amount = $stock->amount - ($stock_rs->amount * $rs['qty']);
+                                            if ($stock->save()) {
+                                                $log_stock = new LogStock();
+                                                $log_stock->stock_id = $stock_rs->stock_id;
+                                                $log_stock->order_id = $order->id;
+                                                $log_stock->menu_option_id = $rs['option'];
+                                                $log_stock->old_amount = $stock_rs->amount;
+                                                $log_stock->amount = ($stock_rs->amount * $rs['qty']);
+                                                $log_stock->status = 2;
+                                                $log_stock->save();
+                                            }
+                                        }
                                     }
                                 }
                             }
