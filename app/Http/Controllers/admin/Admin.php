@@ -548,6 +548,8 @@ class Admin extends Controller
                 }
                 if ($rs->status == 1) {
                     $pay .= '<button data-id="' . $rs->id . '" data-total="' . $rs->total . '" type="button" class="btn btn-sm btn-outline-warning modalRider">จัดส่ง</button>';
+                }
+                if ($rs->is_pay == 1) {
                     $status .= '<button class="btn btn-sm btn-success m-1">ชำระเงินแล้ว</button>';
                 }
                 $flag_order = '<button class="btn btn-sm btn-warning">สั่งออนไลน์</button>';
