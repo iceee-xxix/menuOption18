@@ -26,9 +26,25 @@ class Admin extends Controller
     public function dashboard()
     {
         $data['function_key'] = __FUNCTION__;
-        $data['orderday'] = Orders::select(DB::raw("SUM(total)as total"))->where('status', 3)->whereDay('created_at', date('d'))->first();
-        $data['ordermouth'] = Orders::select(DB::raw("SUM(total)as total"))->where('status', 3)->whereMonth('created_at', date('m'))->first();
-        $data['orderyear'] = Orders::select(DB::raw("SUM(total)as total"))->where('status', 3)->whereYear('created_at', date('Y'))->first();
+        if (session('user')->is_rider != 1) {
+            $data['orderday'] = Orders::select(DB::raw("SUM(total)as total"))->where('status', 3)->whereDay('created_at', date('d'))->first();
+            $data['ordermouth'] = Orders::select(DB::raw("SUM(total)as total"))->where('status', 3)->whereMonth('created_at', date('m'))->first();
+            $data['orderyear'] = Orders::select(DB::raw("SUM(total)as total"))->where('status', 3)->whereYear('created_at', date('Y'))->first();
+            $data['moneyDay'] = Pay::select(DB::raw("SUM(total)as total"))->where('is_type', 0)->whereDay('created_at', date('d'))->first();
+            $data['transferDay'] = Pay::select(DB::raw("SUM(total)as total"))->where('is_type', 1)->whereDay('created_at', date('d'))->first();
+            $data['delivery'] = Orders::where('status', 3)->where('table_id')->whereDay('created_at', date('d'))->count();
+        } else {
+            $data['delivery_day'] = Orders::join('rider_sends', 'rider_sends.order_id', '=', 'orders.id')
+                ->where('orders.status', 3)
+                ->where('rider_id', session('user')->id)
+                ->whereDay('orders.created_at', date('d'))
+                ->count();
+            $data['delivery_mouth'] = Orders::join('rider_sends', 'rider_sends.order_id', '=', 'orders.id')
+                ->where('orders.status', 3)
+                ->where('rider_id', session('user')->id)
+                ->whereMonth('orders.created_at', date('m'))
+                ->count();
+        }
         $data['ordertotal'] = Orders::count();
         $data['rider'] = User::where('is_rider', 1)->get();
 
@@ -481,10 +497,19 @@ class Admin extends Controller
         foreach ($paygroup as $rs) {
             $order_id[] = $rs->order_id;
         }
+        $item_id = '';
+        if (empty($pay->table_id)) {
+            $item_id = $order_id[0];
+        }
         $order = OrdersDetails::whereIn('order_id', $order_id)
             ->with('menu', 'option.option')
             ->get();
-        return view('tax', compact('config', 'pay', 'order'));
+        $users = Orders::select('users.*', 'users_addresses.name as address_name', 'users_addresses.tel as address_tel')
+            ->join('users', 'orders.users_id', '=', 'users.id')
+            ->join('users_addresses', 'users.id', '=', 'users_addresses.users_id')
+            ->where('users_addresses.is_use', 1)
+            ->find($item_id);
+        return view('tax', compact('config', 'pay', 'order', 'users'));
     }
 
     public function printReceiptfull($id)
@@ -719,6 +744,63 @@ class Admin extends Controller
                     'message' => 'อัพเดทสถานะเรียบร้อยแล้ว',
                 ];
             }
+        }
+        return response()->json($data);
+    }
+
+    public function ListOrderPeople()
+    {
+        $data = [
+            'status' => false,
+            'message' => '',
+            'data' => []
+        ];
+        $order = DB::table('orders as o')
+            ->select(
+                'o.users_id',
+                'users.name'
+            )
+            ->join('users', 'o.users_id', '=', 'users.id')
+            ->where('o.table_id')
+            ->whereIn('o.status', [3])
+            ->groupBy('o.users_id', 'users.name')
+            ->get();
+
+        if (count($order) > 0) {
+            $info = [];
+            foreach ($order as $rs) {
+                $total = Orders::select(DB::raw("SUM(total)as total"))
+                    ->where('status', 3)
+                    ->where('users_id', $rs->users_id)
+                    ->first();
+                $moneyDay = Orders::select(DB::raw("SUM(orders.total)as total"))
+                    ->join('pay_groups', 'pay_groups.order_id', '=', 'orders.id')
+                    ->join('pays', 'pays.id', '=', 'pay_groups.pay_id')
+                    ->where('orders.status', 3)
+                    ->where('orders.users_id', $rs->users_id)
+                    ->where('pays.is_type', 0)
+                    ->first();
+                $transferDay = Orders::select(DB::raw("SUM(orders.total)as total"))
+                    ->join('pay_groups', 'pay_groups.order_id', '=', 'orders.id')
+                    ->join('pays', 'pays.id', '=', 'pay_groups.pay_id')
+                    ->where('orders.status', 3)
+                    ->where('orders.users_id', $rs->users_id)
+                    ->where('pays.is_type', 1)
+                    ->first();
+                $delivery = Orders::where('status', 3)->where('users_id', $rs->users_id)->where('table_id')->count();
+                $info[] = [
+                    'name' => $rs->name,
+                    'total' => $total->total,
+                    'moneyDay' => $moneyDay->total,
+                    'transferDay' => $transferDay->total ?? '0',
+                    'delivery' => $delivery ?? '0',
+                ];
+            }
+            $data = [
+                'data' => $info,
+                'status' => true,
+                'message' => 'success'
+            ];
         }
         return response()->json($data);
     }

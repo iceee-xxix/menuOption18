@@ -4,6 +4,7 @@ use App\Http\Controllers\admin\Admin;
 use App\Http\Controllers\admin\Category;
 use App\Http\Controllers\admin\CategoryExpenses;
 use App\Http\Controllers\admin\Expenses;
+use App\Http\Controllers\admin\exportExcel;
 use App\Http\Controllers\admin\Menu;
 use App\Http\Controllers\admin\MenuTypeOption;
 use App\Http\Controllers\admin\Promotion;
@@ -94,6 +95,7 @@ Route::middleware(['role:admin'])->group(function () {
     Route::get('/admin/order/printReceiptfull/{id}', [Admin::class, 'printReceiptfull'])->name('printReceiptfull');
     Route::get('/admin/order_rider', [Admin::class, 'order_rider'])->name('order_rider');
     Route::post('/admin/order/ListOrderRider', [Admin::class, 'ListOrderRider'])->name('ListOrderRider');
+    Route::post('/admin/order/ListOrderPeople', [Admin::class, 'ListOrderPeople'])->name('ListOrderPeople');
     //Cancel
     Route::post('/admin/order/cancelOrder', [Admin::class, 'cancelOrder'])->name('cancelOrder');
     Route::post('/admin/order/cancelMenu', [Admin::class, 'cancelMenu'])->name('cancelMenu');
@@ -191,6 +193,9 @@ Route::middleware(['role:admin'])->group(function () {
     Route::get('/admin/expenses/edit/{id}', [Expenses::class, 'ExpensesEdit'])->name('ExpensesEdit');
     Route::post('/admin/expenses/save', [Expenses::class, 'ExpensesSave'])->name('ExpensesSave');
     Route::post('/admin/expenses/delete', [Expenses::class, 'ExpensesDelete'])->name('ExpensesDelete');
+    //export
+    Route::get('/export-report', [exportExcel::class, 'exportExcel'])->name('exportExcel');
+    Route::get('/export-report-rider', [exportExcel::class, 'exportExcelRider'])->name('exportExcelRider');
 });
 
 

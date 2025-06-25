@@ -271,23 +271,48 @@ class Delivery extends Controller
 
     public function listOrderDetail(Request $request)
     {
-        $orders = OrdersDetails::select('menu_id')
+        $groupedMenus = OrdersDetails::select('menu_id')
             ->where('order_id', $request->input('id'))
             ->groupBy('menu_id')
             ->get();
-
-        if (count($orders) > 0) {
-            $info = '';
-            foreach ($orders as $key => $value) {
-                $order = OrdersDetails::where('order_id', $request->input('id'))
+        $info = '';
+        if ($groupedMenus->count() > 0) {
+            foreach ($groupedMenus as $value) {
+                $orderDetails = OrdersDetails::where('order_id', $request->input('id'))
                     ->where('menu_id', $value->menu_id)
-                    ->with('menu', 'option')
+                    ->with('menu', 'option.option')
                     ->get();
-                $info .= '<div class="card text-white bg-primary mb-3"><div class="card-body"><h5 class="card-title text-white">' . $order[0]['menu']->name . '</h5><p class="card-text">';
-                foreach ($order as $rs) {
-                    $info .= '' . $rs['menu']->name . ' (' . $rs['option']->type . ') จำนวน ' . $rs->quantity . ' ราคา ' . ($rs->quantity * $rs->price) . ' บาท <br>';
+                $menuName = optional($orderDetails->first()->menu)->name ?? 'ไม่พบชื่อเมนู';
+                $info .= '<div class="mb-3">';
+                $info .= '<div class="row">';
+                $info .= '<div class="col-auto d-flex align-items-start">';
+                $info .= '</div>';
+                $info .= '</div>';
+                $detailsText = '';
+                foreach ($orderDetails as $rs) {
+
+                    $priceTotal = number_format($rs->quantity * $rs->price, 2);
+                    $info .= '<ul class="list-group mb-1 shadow-sm rounded">';
+                    $info .= '<li class="list-group-item d-flex justify-content-between align-items-start">';
+                    $info .= '<div class="">';
+                    $info .= '<div><span class="fw-bold">' . htmlspecialchars($menuName) . '</span></div>';
+                    if (!empty($rs->option)) {
+                        foreach ($rs->option as $value) {
+                            $detailsText = $rs->option ? '+ ' . htmlspecialchars($value->option->type) : '';
+                            $info .= '<div class="small text-secondary" style="text-align:start;">' . $detailsText . '</div>';
+                        }
+                    }
+                    $info .= '</div>';
+                    $info .= '<div class="text-end d-flex flex-column align-items-end">';
+                    $info .= '<div class="mb-1">จำนวน: ' . $rs->quantity . '</div>';
+                    $info .= '<div>';
+                    $info .= '<button class="btn btn-sm btn-primary">' . $priceTotal . ' บาท</button>';
+                    $info .= '</div>';
+                    $info .= '</div>';
+                    $info .= '</li>';
+                    $info .= '</ul>';
                 }
-                $info .= '</p></div></div>';
+                $info .= '</div>';
             }
         }
         echo $info;
