@@ -42,6 +42,12 @@ Route::get('/buy', function () {
 Route::get('/total', function () {
     return view('index');
 });
+//listorder
+Route::get('/listorder', [Main::class, 'listorder'])->name('listorder');
+Route::post('/listorderDetails', [Main::class, 'listorderDetails'])->name('listorderDetails');
+Route::post('/confirmPay', [Main::class, 'confirmPay'])->name('confirmPay');
+Route::post('/admin/order/paymentConfirm', [Admin::class, 'paymentConfirm'])->name('paymentConfirm');
+
 //สั่ง delivery
 Route::get('/delivery', [Delivery::class, 'index'])->name('index');
 Route::get('/delivery/login', [Delivery::class, 'login'])->name('delivery.login');
